@@ -1,0 +1,41 @@
+
+<ion-grid>
+  <ion-row align-self-center>
+    <ion-col style="text-align:center">
+        <h1>Enter Login Details</h1>
+    </ion-col>
+  </ion-row>
+  
+  <ion-row align-self-center>
+    <ion-col>
+      
+<div id="form">
+    <form [formGroup]="loginForm" (ngSubmit)="signin(loginForm.value)">
+ 
+        <ion-item>
+          <!-- <ion-label>Enter Email</ion-label> -->
+          <ion-input type="email" placeholder="Enter Email" formControlName="email">
+        
+          </ion-input>
+         
+        </ion-item>
+        
+        
+        <ion-item>
+          <!-- <ion-label>Emter Password</ion-label> -->
+          <ion-input type="password" placeholder="Enter Password" formControlName="password">
+        
+          </ion-input>
+         
+        </ion-item>
+        
+        
+          <ion-button expand="block" color="secondary" type="submit">
+            Login
+          </ion-button>
+        </form>
+</div>
+
+    </ion-col>
+  </ion-row>
+</ion-grid>

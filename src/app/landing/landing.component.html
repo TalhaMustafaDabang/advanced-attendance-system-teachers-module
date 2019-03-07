@@ -1,0 +1,54 @@
+<!-- <ion-button (click)="showTeaching()">removeBackground</ion-button>
+<ion-button (click)="showStudents()">removeBackgroundSS</ion-button>  -->
+
+
+
+<ion-grid>
+
+  <ion-row style="
+      height: 100%;
+      display: block;
+      vertical-align: middle;
+      padding-top: 50px;
+      text-align: center"
+      
+    align-self-center>
+    <h1
+    style="
+              font-family: cursive;
+    font-weight: bold;
+    
+    color: #034F50;">
+      You Are Teaching
+    </h1>
+    <ion-col>
+      <ion-list inset="true" *ngFor="let teaching of teacher.nowTeaching">
+        <ion-item (click)="selectTeaching(teaching)">
+          <ion-card style="
+          background-color: #CFF5EE;
+          ">
+            <ion-card-header style="text-align:center">
+              <ion-label style="
+              font-family: cursive;
+    font-weight: bold;
+    font-size: large;
+    color: #034F50;
+              ">
+                {{teaching.course}}
+              </ion-label>
+            </ion-card-header>
+            <ion-card-content>
+              <ion-label style="
+              font-family: cursive;
+    font-weight: bold;
+    font-size: large;
+    color: blue;">
+                {{teaching.calss}}
+              </ion-label>
+            </ion-card-content>
+          </ion-card>
+        </ion-item>
+      </ion-list>
+    </ion-col>
+  </ion-row>
+</ion-grid>
