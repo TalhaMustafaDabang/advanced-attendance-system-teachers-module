@@ -27,6 +27,7 @@ import { AngularFireStorageModule } from 'angularfire2/storage';
 import { AngularFireAuthModule } from 'angularfire2/auth';
 import { LandingComponent } from './landing/landing.component';
 import { AttendanceComponent } from './attendance/attendance.component';
+import { StorageAzureServiceService } from './services/storage-azure-service.service';
 
 
 
@@ -52,6 +53,7 @@ import { AttendanceComponent } from './attendance/attendance.component';
     
   ],
   providers: [
+    StorageAzureServiceService,
     DatabaseServiceService,
     StatusBar,
     SplashScreen,

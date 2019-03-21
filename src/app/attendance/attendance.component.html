@@ -13,26 +13,36 @@
     </ion-col>
   </ion-row>
   
+
   <ion-row align-self-center *ngIf="!manual">
+    <ion-col>
+        <ion-button expand="full" color="secondary" size="large" (click)="toggleOption2()" shape="round">Switch To
+          {{option2}}
+        </ion-button>
+    </ion-col>
+  </ion-row>
+
+  <ion-row align-self-center *ngIf="!manual && option2=='capture'">
     <ion-col>
       <video #player id="player" autoplay></video>
       <ion-button (click)="capturePic()" #captureBtn id="captureBtn">Capture</ion-button>
     </ion-col>
   </ion-row>
   
-  <ion-row align-self-center *ngIf="!manual">
+  <ion-row align-self-center *ngIf="!manual && option2=='capture'">
     <ion-col>
       <canvas #canvas id="canvas" width="320px" height="240px"></canvas>
     </ion-col>
   </ion-row>
   
-  <ion-row align-self-center *ngIf="!manual">
+  <ion-row align-self-center *ngIf="!manual && option2=='upload'">
     <ion-col>
-      <ion-item>
-        <div #imagePickerArea id="imagePickerArea">
-          <ion-input type="file" accept="image/*" capture="camera"></ion-input>
-        </div>
-      </ion-item>
+      <!-- <ion-item> -->
+        <!-- <div #imagePickerArea id="imagePickerArea"> -->
+          <!-- <input (change)="uploadImage($event)" type="file" accept="image/*"> -->
+          <ion-input (change)="uploadImage($event)" type="file" accept="image/*"></ion-input>
+          <!-- </div> -->
+      <!-- </ion-item> -->
     </ion-col>
   </ion-row>
 

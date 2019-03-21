@@ -17,6 +17,10 @@ export class LandingComponent {
   constructor(public router: Router,public actRoute: ActivatedRoute, public dbs: DatabaseServiceService, public authS: AuthServiceService) {
     let teacherId = this.actRoute.snapshot.paramMap.get('id');
 
+      if(teacherId==null){
+        teacherId=JSON.parse(localStorage.getItem('user')).email;
+      }
+
     this.dbs.getTeacher(teacherId).subscribe((teacher) => { this.teacher = teacher; console.log(teacher) });
  
     // this.dbs.getStudentsByClass('BSCS-2015-Morning-A').then((students) => { this.students = students }).catch((e) => { alert(e.message) });

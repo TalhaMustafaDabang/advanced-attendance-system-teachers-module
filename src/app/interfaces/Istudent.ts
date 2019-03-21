@@ -6,4 +6,6 @@ export interface Students{
   enrollmentId : string,
   class: string,
   status: number,
+  imageId: string,
+  personId: string,
 }

@@ -4,6 +4,9 @@ import { DatabaseServiceService } from './../services/database-service.service';
 import { ActivatedRoute } from '@angular/router';
 import { Component, OnInit, ElementRef, AfterViewInit, ViewChild } from '@angular/core';
 import { AngularFireStorage } from 'angularfire2/storage';
+import { StorageAzureServiceService } from '../services/storage-azure-service.service';
+import { element } from '@angular/core/src/render3';
+import { LoadingController } from '@ionic/angular';
 
 @Component({
   selector: 'app-attendance',
@@ -13,6 +16,7 @@ import { AngularFireStorage } from 'angularfire2/storage';
 export class AttendanceComponent implements AfterViewInit, OnInit {
   manual: boolean = false;
   option = "Manual";
+  option2 = "capture";
   students: Students[];
   clsId: string;
   courseId: string;
@@ -22,7 +26,7 @@ export class AttendanceComponent implements AfterViewInit, OnInit {
   @ViewChild('captureBtn') captureBtn: ElementRef;
   @ViewChild('imagePickerArea') imagePickerArea: ElementRef;
 
-  constructor(public fireStorage: AngularFireStorage, public actRoute: ActivatedRoute, public dbs: DatabaseServiceService) {
+  constructor(private loadingCtrl: LoadingController, public sas: StorageAzureServiceService, public fireStorage: AngularFireStorage, public actRoute: ActivatedRoute, public dbs: DatabaseServiceService) {
 
     this.clsId = actRoute.snapshot.paramMap.get('calssId');
     this.courseId = actRoute.snapshot.paramMap.get('courseId');
@@ -45,22 +49,46 @@ export class AttendanceComponent implements AfterViewInit, OnInit {
 
   }
 
+  async presentLoading(type: any) {
+    let loading = await this.loadingCtrl.create({
+      message: 'Working....'
+    });
+    if (type == "present") {
+      await loading.present();
+    }
+    else if (type == "dismiss") {
+      await loading.dismiss()
+    }
+  }
+
+  uploadImage(event: any) {
+
+    this.presentLoading('present');
+
+    let file = event.target.files[0];
+    this.uplaodAndFurtherApiCalling(file);
+
+  }
+
+  toggleOption2() {
+    this.option2 == "capture" ? this.option2 = "upload" : this.option2 = "capture";
+  }
 
   markAttendance(enrolId: any, i) {
 
-      console.log(`${enrolId} is present! ${i}`);
-      this.attendance[i].status = true;
+    console.log(`${enrolId} is present! ${i}`);
+    this.attendance[i].status = true;
 
   }
 
 
 
-  markAutoAttendance(faceListIds:any[])
-  {
-    faceListIds.forEach((element)=>{
-      let i = this.attendance.findIndex(x => x.enrollmentId == element.id);
+  markAutoAttendance(personIds: any[]) {
+    personIds.forEach((element) => {
+      let i = this.attendance.findIndex(x => x.personId == element.personId);
       this.attendance[i].status = true;
     });
+    console.log(this.attendance);
   }
 
 
@@ -75,6 +103,7 @@ export class AttendanceComponent implements AfterViewInit, OnInit {
   }
 
   capturePic() {
+    this.presentLoading('present');
     this.player.nativeElement.style.display = "none";
     // this.captureBtn.nativeElement.style.display="none";
     this.canvas.nativeElement.style.display = "block";
@@ -85,21 +114,45 @@ export class AttendanceComponent implements AfterViewInit, OnInit {
     let file = this.dataURItoBlob(this.canvas.nativeElement.toDataURL());
     console.log(this.attendance);
 
+    this.uplaodAndFurtherApiCalling(file);
+
+    console.log(file);
+  }
 
 
+  uplaodAndFurtherApiCalling(file: any) {
     let task = this.fireStorage.ref(`${this.clsId}/${this.courseId}/${new Date().toUTCString()}`)
       .put(file)
       .then((file) => {
 
-        task.finally(() => { file.ref.getDownloadURL().then((e) => { console.log(e) }) });
+        task.finally(() => {
+          file.ref.getDownloadURL().then((e) => {
+
+
+            this.sas.detect(e).toPromise().then((faceIds) => {
+              console.log("faceIds", faceIds);
+              this.sas.identify(faceIds).toPromise().then((res) => {
+
+                let faceIdsResponse: any = res;
+                let personIds: any[];
+                faceIdsResponse.forEach(element => {
+                  personIds.push(element.candidates[0].personId);
+                  console.log(element.candidates[0].personId);
+                });
+                this.markAutoAttendance(personIds);
+                this.presentLoading('dismiss');
+              })
+            })
+            console.log(e)
+          })
+        });
 
       })
       .catch((e) => {
+        this.presentLoading('dismiss');
         alert(e.message);
-      })
-    console.log(file);
+      });
   }
-
 
 
   dataURItoBlob(dataURI) {
