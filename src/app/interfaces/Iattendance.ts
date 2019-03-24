@@ -3,4 +3,5 @@ teacher : string,
 status: boolean,
 date: string,
 studentId : string,
+personId: string
 }

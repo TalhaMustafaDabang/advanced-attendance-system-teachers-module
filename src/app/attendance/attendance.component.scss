@@ -1,3 +1,7 @@
+ion-page{
+    overflow-y: scroll !important;
+}
+
 #imagePickerArea{
     display: none;
 }
@@ -14,4 +18,31 @@
 }
 #imagePickerArea{
     display: none;
+}
+
+ion-checkbox{
+    margin: 0px;
+    width: 100px;
+    height: 38px;
+}
+
+ion-card{
+    display: flex;
+    flex-flow: row nowrap;
+    // align-items: center;
+    // justify-content: space-around;
+}
+
+ion-card div{
+    display: flex;
+    flex-direction: column;
+    margin-left: 20px;
+    align-items: center;
+    margin-top: -12px;
+}
+
+ion-img{
+    width: 100px;
+    height: 100px;
+    border-radius: 20px;
 }

@@ -21,13 +21,18 @@ export class AttendanceComponent implements AfterViewInit, OnInit {
   clsId: string;
   courseId: string;
   attendance;
+  loading;
   @ViewChild('player') player: ElementRef;
   @ViewChild('canvas') canvas: ElementRef;
   @ViewChild('captureBtn') captureBtn: ElementRef;
   @ViewChild('imagePickerArea') imagePickerArea: ElementRef;
 
-  constructor(private loadingCtrl: LoadingController, public sas: StorageAzureServiceService, public fireStorage: AngularFireStorage, public actRoute: ActivatedRoute, public dbs: DatabaseServiceService) {
-
+  constructor(
+    private loadingCtrl: LoadingController,
+    public sas: StorageAzureServiceService,
+    public fireStorage: AngularFireStorage,
+    public actRoute: ActivatedRoute,
+    public dbs: DatabaseServiceService) {
     this.clsId = actRoute.snapshot.paramMap.get('calssId');
     this.courseId = actRoute.snapshot.paramMap.get('courseId');
     this.dbs.getStudentsByClass(this.clsId)
@@ -40,24 +45,30 @@ export class AttendanceComponent implements AfterViewInit, OnInit {
             status: false,
             date: new Date().toUTCString(),
             studentId: student.enrollmentId,
+            personId: student.personId,
           };
           this.attendance.push(attendance);
         });
-        console.log(students);
-        console.log(this.attendance);
+        // console.log(students);
+        // console.log(this.attendance);
       });
 
   }
 
+  getPic(eid:any){
+return this.students[this.students.findIndex(e=>e.enrollmentId==eid)].imageId;
+  }
+
   async presentLoading(type: any) {
-    let loading = await this.loadingCtrl.create({
-      message: 'Working....'
-    });
+
     if (type == "present") {
-      await loading.present();
+      this.loading = await this.loadingCtrl.create({
+        message: 'Working....'
+      });
+      await this.loading.present();
     }
     else if (type == "dismiss") {
-      await loading.dismiss()
+      await this.loading.dismiss()
     }
   }
 
@@ -75,28 +86,22 @@ export class AttendanceComponent implements AfterViewInit, OnInit {
   }
 
   markAttendance(enrolId: any, i) {
-
-    console.log(`${enrolId} is present! ${i}`);
+    // console.log(`${enrolId} is present! ${i}`);
     this.attendance[i].status = true;
-
   }
-
-
 
   markAutoAttendance(personIds: any[]) {
+    
     personIds.forEach((element) => {
-      let i = this.attendance.findIndex(x => x.personId == element.personId);
+      let i=this.attendance.findIndex((x) => (x.personId == element));
+      console.log(this.attendance[i],"present");
       this.attendance[i].status = true;
+
     });
+    this.manual=true;
     console.log(this.attendance);
+
   }
-
-
-
-
-
-
-
 
   submitAttendance() {
     console.log(this.attendance);
@@ -119,7 +124,6 @@ export class AttendanceComponent implements AfterViewInit, OnInit {
     console.log(file);
   }
 
-
   uplaodAndFurtherApiCalling(file: any) {
     let task = this.fireStorage.ref(`${this.clsId}/${this.courseId}/${new Date().toUTCString()}`)
       .put(file)
@@ -130,30 +134,31 @@ export class AttendanceComponent implements AfterViewInit, OnInit {
 
 
             this.sas.detect(e).toPromise().then((faceIds) => {
-              console.log("faceIds", faceIds);
+              // console.log("faceIds", faceIds);
               this.sas.identify(faceIds).toPromise().then((res) => {
-
+                // console.log(res);
+                console.log("faceidsffffff",res);
                 let faceIdsResponse: any = res;
-                let personIds: any[];
+                let personIds: any[] = new Array();
                 faceIdsResponse.forEach(element => {
-                  personIds.push(element.candidates[0].personId);
-                  console.log(element.candidates[0].personId);
+                  if(element.candidates.length>0&&element.candidates[0].confidence>=0.5){
+                    personIds.push(element.candidates[0].personId);
+                  }
+                  // console.log(element.candidates[0].personId);
                 });
-                this.markAutoAttendance(personIds);
                 this.presentLoading('dismiss');
+                this.markAutoAttendance(personIds);
               })
             })
-            console.log(e)
+            // console.log(e)
           })
         });
-
       })
       .catch((e) => {
         this.presentLoading('dismiss');
         alert(e.message);
       });
   }
-
 
   dataURItoBlob(dataURI) {
     let byteString = atob(dataURI.split(',')[1]);
@@ -166,7 +171,6 @@ export class AttendanceComponent implements AfterViewInit, OnInit {
     let blob = new Blob([ab], { type: mimeString });
     return blob;
   }
-
 
 
   initializeMedia() {
@@ -195,8 +199,6 @@ export class AttendanceComponent implements AfterViewInit, OnInit {
     console.log(this.manual, this.option);
     this.manual = !this.manual;
     this.manual != true ? this.option = "Manual" : this.option = "Automatic";
-
-
   }
 
 

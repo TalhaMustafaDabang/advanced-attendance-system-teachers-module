@@ -1,24 +1,24 @@
 <ion-grid>
 
-    <!-- <ion-button expand="full" color="secondary" size="large" (click)="makeAtn()" shape="round">Switch To
+  <!-- <ion-button expand="full" color="secondary" size="large" (click)="makeAtn()" shape="round">Switch To
         asdf
       </ion-button> -->
 
 
   <ion-row align-self-center>
     <ion-col>
-        <ion-button expand="full" color="secondary" size="large" (click)="toggleOption()" shape="round">Switch To
-          {{option}}
-        </ion-button>
+      <ion-button expand="full" color="secondary" size="large" (click)="toggleOption()" shape="round">Switch To
+        {{option}}
+      </ion-button>
     </ion-col>
   </ion-row>
-  
+
 
   <ion-row align-self-center *ngIf="!manual">
     <ion-col>
-        <ion-button expand="full" color="secondary" size="large" (click)="toggleOption2()" shape="round">Switch To
-          {{option2}}
-        </ion-button>
+      <ion-button expand="full" color="secondary" size="large" (click)="toggleOption2()" shape="round">Switch To
+        {{option2}}
+      </ion-button>
     </ion-col>
   </ion-row>
 
@@ -28,20 +28,20 @@
       <ion-button (click)="capturePic()" #captureBtn id="captureBtn">Capture</ion-button>
     </ion-col>
   </ion-row>
-  
+
   <ion-row align-self-center *ngIf="!manual && option2=='capture'">
     <ion-col>
       <canvas #canvas id="canvas" width="320px" height="240px"></canvas>
     </ion-col>
   </ion-row>
-  
+
   <ion-row align-self-center *ngIf="!manual && option2=='upload'">
     <ion-col>
       <!-- <ion-item> -->
-        <!-- <div #imagePickerArea id="imagePickerArea"> -->
-          <!-- <input (change)="uploadImage($event)" type="file" accept="image/*"> -->
-          <ion-input (change)="uploadImage($event)" type="file" accept="image/*"></ion-input>
-          <!-- </div> -->
+      <!-- <div #imagePickerArea id="imagePickerArea"> -->
+      <!-- <input (change)="uploadImage($event)" type="file" accept="image/*"> -->
+      <ion-input (change)="uploadImage($event)" type="file" accept="image/*"></ion-input>
+      <!-- </div> -->
       <!-- </ion-item> -->
     </ion-col>
   </ion-row>
@@ -52,12 +52,12 @@
       <ion-list *ngFor="let attendacee of attendance; let i=index">
         <ion-item>
           <ion-card>
-            
-            {{attendacee.studentId}}
-            <ion-checkbox (click)="markAttendance(attendacee.studentId,i)">
-
-            </ion-checkbox>  
-          </ion-card>
+              <ion-img [src]="this.getPic(attendacee.studentId)"></ion-img>
+                <div>
+                  <h1 style="color:black;">{{attendacee.studentId}}</h1>
+                  <ion-checkbox checked="attendacee.status" (click)="markAttendance(attendacee.studentId,i)"></ion-checkbox>
+                </div>
+                </ion-card>
         </ion-item>
       </ion-list>
     </ion-col>
@@ -67,7 +67,7 @@
       <ion-button (click)="submitAttendance()" color="success">
         Submit
       </ion-button>
-    </ion-col>  
+    </ion-col>
   </ion-row>
 
 

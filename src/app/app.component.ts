@@ -30,7 +30,7 @@ export class AppComponent {
     private statusBar: StatusBar
   ) {
     this.initializeApp();
-    localStorage.getItem('user') ? this.router.navigate(['/landing',JSON.parse(localStorage.getItem('user')).email]) : ()=>{}
+    JSON.parse(localStorage.getItem('user'))!=null ? this.router.navigate(['/landing',JSON.parse(localStorage.getItem('user')).email]) : ()=>{}
   }
 
 
