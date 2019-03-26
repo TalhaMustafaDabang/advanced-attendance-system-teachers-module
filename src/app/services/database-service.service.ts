@@ -1,3 +1,4 @@
+import { Attendance } from './../interfaces/Iattendance';
 import { Students } from './../interfaces/Istudent';
 import { Class } from './../interfaces/Iclass';
 import { Teacher } from './../interfaces/Iteacher';
@@ -38,6 +39,43 @@ export class DatabaseServiceService {
 
 
   }
+
+
+  markAttendaceInDb(attendance:Attendance):Promise<any>{
+    return new Promise((res,rej)=>{
+    this.afs.doc(`Attendance/${attendance.studentId}`).get().toPromise().then((attedance)=>{
+      console.log(1,attendance);
+      if(attedance.data()[attendance.courseId])
+      {
+        console.log(2,attedance.data()[attendance.courseId]);
+        let attendanceOfCourse:any[]= new Array();
+        attendanceOfCourse =attedance.data()[attendance.courseId];
+        attendanceOfCourse.push(attendance);
+          let aa = attendance.courseId;
+        let obj={};
+        obj[attendance.courseId]=attendanceOfCourse;
+        Object.defineProperty(obj,attendance.courseId,{value:attendanceOfCourse});
+     this.afs.collection('Attendance').doc(attendance.studentId)
+    .set(obj).then((e)=>{res(e)}).catch(e=>{rej(e)});
+      }
+      else{
+        let attendanceOfCourse:Attendance[] = new Array();
+        attendanceOfCourse.push(attendance);
+        let aa = attendance.courseId;
+        let obj={};
+        obj[attendance.courseId]=attendanceOfCourse;
+        // Object.defineProperty(obj,attendance.courseId,{value:attendanceOfCourse});
+        console.log(obj)
+        return this.afs.collection('Attendance').doc(`${attendance.studentId}`)
+        .set(obj).then((e)=>{res(e)}).catch(e=>{rej(e)});
+      }
+    });
+  });
+  }
+
+
+
+
 
   getTeacher(id: string) {
 

@@ -55,7 +55,7 @@
               <ion-img [src]="this.getPic(attendacee.studentId)"></ion-img>
                 <div>
                   <h1 style="color:black;">{{attendacee.studentId}}</h1>
-                  <ion-checkbox checked="attendacee.status" (click)="markAttendance(attendacee.studentId,i)"></ion-checkbox>
+                  <ion-checkbox [checked]="attendacee.status" (click)="markAttendance(attendacee.studentId,i)"></ion-checkbox>
                 </div>
                 </ion-card>
         </ion-item>

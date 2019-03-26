@@ -1,3 +1,4 @@
+import { AngularFirestore } from 'angularfire2/firestore';
 import { Attendance } from './../interfaces/Iattendance';
 import { Students } from './../interfaces/Istudent';
 import { DatabaseServiceService } from './../services/database-service.service';
@@ -22,6 +23,7 @@ export class AttendanceComponent implements AfterViewInit, OnInit {
   courseId: string;
   attendance;
   loading;
+  courseSemester;
   @ViewChild('player') player: ElementRef;
   @ViewChild('canvas') canvas: ElementRef;
   @ViewChild('captureBtn') captureBtn: ElementRef;
@@ -32,6 +34,7 @@ export class AttendanceComponent implements AfterViewInit, OnInit {
     public sas: StorageAzureServiceService,
     public fireStorage: AngularFireStorage,
     public actRoute: ActivatedRoute,
+    public afs: AngularFirestore,
     public dbs: DatabaseServiceService) {
     this.clsId = actRoute.snapshot.paramMap.get('calssId');
     this.courseId = actRoute.snapshot.paramMap.get('courseId');
@@ -41,17 +44,21 @@ export class AttendanceComponent implements AfterViewInit, OnInit {
         this.attendance = new Array<Attendance>();
         this.students.forEach((student) => {
           let attendance: Attendance = {
-            teacher: "",
+            teacher: JSON.parse(localStorage.getItem('user')).email,
             status: false,
             date: new Date().toUTCString(),
             studentId: student.enrollmentId,
             personId: student.personId,
+            courseId: this.courseId,
+            semesterId: student.status.toString(),
           };
           this.attendance.push(attendance);
         });
         // console.log(students);
-        // console.log(this.attendance);
+        console.log(this.attendance);
       });
+    
+
 
   }
 
@@ -104,6 +111,13 @@ return this.students[this.students.findIndex(e=>e.enrollmentId==eid)].imageId;
   }
 
   submitAttendance() {
+    this.presentLoading("present");
+    this.attendance.forEach(element => {
+      this.dbs.markAttendaceInDb(element).then((e)=>{
+        console.log(e);
+        this.presentLoading('dismiss');
+      }).catch(e=>{console.log(e);this.presentLoading('dismiss')});
+    });
     console.log(this.attendance);
   }
 

@@ -3,5 +3,7 @@ teacher : string,
 status: boolean,
 date: string,
 studentId : string,
-personId: string
+personId: string,
+courseId: string,
+semesterId: string,
 }
