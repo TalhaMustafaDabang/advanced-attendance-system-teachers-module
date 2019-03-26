@@ -21,15 +21,15 @@ export class DatabaseServiceService {
   classes: Observable<Class[]>;
 
   studentsCollection: AngularFirestoreCollection<Students>;
-  students:Observable<Students[]>;
+  students: Observable<Students[]>;
 
   constructor(
     public afs: AngularFirestore
 
   ) {
 
-    this.classesCollection=this.afs.collection('Classes');
-    this.classes=this.classesCollection.valueChanges();
+    this.classesCollection = this.afs.collection('Classes');
+    this.classes = this.classesCollection.valueChanges();
 
     this.teachersCollection = this.afs.collection('Teachers');
 
@@ -41,36 +41,54 @@ export class DatabaseServiceService {
   }
 
 
-  markAttendaceInDb(attendance:Attendance):Promise<any>{
-    return new Promise((res,rej)=>{
-    this.afs.doc(`Attendance/${attendance.studentId}`).get().toPromise().then((attedance)=>{
-      console.log(1,attendance);
-      if(attedance.data()[attendance.courseId])
-      {
-        console.log(2,attedance.data()[attendance.courseId]);
-        let attendanceOfCourse:any[]= new Array();
-        attendanceOfCourse =attedance.data()[attendance.courseId];
-        attendanceOfCourse.push(attendance);
-          let aa = attendance.courseId;
-        let obj={};
-        obj[attendance.courseId]=attendanceOfCourse;
-        Object.defineProperty(obj,attendance.courseId,{value:attendanceOfCourse});
-     this.afs.collection('Attendance').doc(attendance.studentId)
-    .set(obj).then((e)=>{res(e)}).catch(e=>{rej(e)});
-      }
-      else{
-        let attendanceOfCourse:Attendance[] = new Array();
-        attendanceOfCourse.push(attendance);
-        let aa = attendance.courseId;
-        let obj={};
-        obj[attendance.courseId]=attendanceOfCourse;
-        // Object.defineProperty(obj,attendance.courseId,{value:attendanceOfCourse});
-        console.log(obj)
-        return this.afs.collection('Attendance').doc(`${attendance.studentId}`)
-        .set(obj).then((e)=>{res(e)}).catch(e=>{rej(e)});
-      }
+  markAttendaceInDb(attendance: Attendance): Promise<any> {
+    return new Promise((res, rej) => {
+      this.afs.doc(`Attendance/${attendance.studentId}`).get().toPromise().then((attedance) => {
+        let semesterId = "Semester-".concat(attendance.semesterId);
+        let objToSend = {};
+        
+        let semesterAttendance = new Array();
+        semesterAttendance=attedance.data()[semesterId];
+        console.log(1,semesterAttendance)
+        attedance.data()[semesterId].forEach((element,index) => {
+
+          if (element[attendance.courseId]){
+            if(element[attendance.courseId].length > 0){
+              console.log(2,element);
+              let attendanceOfCourse: any[] = new Array();
+              attendanceOfCourse = element[attendance.courseId];
+              console.log(4,attendanceOfCourse);
+              attendanceOfCourse.push(attendance);
+              console.log(5,attendanceOfCourse);
+              let obj = {};
+              obj[attendance.courseId] = attendanceOfCourse;
+              console.log(6,obj);
+
+              semesterAttendance[index]=obj;
+              objToSend[semesterId]=semesterAttendance;
+              console.log(semesterAttendance);
+              this.afs.collection('Attendance').doc(attendance.studentId)
+                .update(objToSend).then((e) => { res(e) }).catch(e => { rej(e) });
+  
+            }else{
+              console.log(3,element);
+            let attendanceOfCourse: Attendance[] = new Array();
+            attendanceOfCourse.push(attendance);
+
+            let obj = {};
+            obj[attendance.courseId] = attendanceOfCourse;
+            console.log(obj);
+            semesterAttendance[index]=obj;
+            objToSend[semesterId]=semesterAttendance;
+            console.log(semesterAttendance);
+            return this.afs.collection('Attendance').doc(`${attendance.studentId}`)
+              .update(objToSend).then((e) => { res(e) }).catch(e => { rej(e) });
+            
+            }
+          } 
+        });
+      });
     });
-  });
   }
 
 
@@ -85,12 +103,11 @@ export class DatabaseServiceService {
   }
 
 
-  getStudentsByClass(classId: string)
-  {
+  getStudentsByClass(classId: string) {
     // return new Promise((res,rej)=>{
-      this.studentsCollection=this.afs.collection('Students', ref => ref.where('class', '==', classId));
-      this.students=this.studentsCollection.valueChanges();
-      return(this.students);
+    this.studentsCollection = this.afs.collection('Students', ref => ref.where('class', '==', classId));
+    this.students = this.studentsCollection.valueChanges();
+    return (this.students);
     // })
   }
 
