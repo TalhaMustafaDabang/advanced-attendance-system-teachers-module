@@ -24,8 +24,8 @@
 
   <ion-row align-self-center *ngIf="!manual && option2=='capture'">
     <ion-col>
-      <video #player id="player" autoplay></video>
       <ion-button (click)="capturePic()" #captureBtn id="captureBtn">Capture</ion-button>
+      <video #player id="player" autoplay></video>
     </ion-col>
   </ion-row>
 
