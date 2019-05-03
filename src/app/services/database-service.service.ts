@@ -7,6 +7,7 @@ import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { ReactiveFormsModule } from '@angular/forms';
 import { toBase64String } from '@angular/compiler/src/output/source_map';
+import { Course } from '../interfaces/Icourse';
 
 @Injectable({
   providedIn: 'root'
@@ -16,10 +17,17 @@ export class DatabaseServiceService {
   teacherDoc: AngularFirestoreDocument<Teacher>;
   teacher: Observable<Teacher>;
 
+  coursesCollection: AngularFirestoreCollection<Course>;
+  courseDoc: AngularFirestoreDocument<Course>;
+  course: Observable<Course>;
 
+  
+  
   classesCollection: AngularFirestoreCollection<Class>;
   classes: Observable<Class[]>;
-
+  classDoc: AngularFirestoreDocument<Class>;
+  class: Observable<Class>;
+  
   studentsCollection: AngularFirestoreCollection<Students>;
   students: Observable<Students[]>;
 
@@ -33,6 +41,8 @@ export class DatabaseServiceService {
 
     this.teachersCollection = this.afs.collection('Teachers');
 
+    this.coursesCollection = this.afs.collection('CoursesTeachers');
+
     this.studentsCollection = this.afs.collection('Students');
 
 
@@ -42,14 +52,21 @@ export class DatabaseServiceService {
 
 
   markAttendaceInDb(attendance: Attendance): Promise<any> {
+    console.log("in mark attendance in db",attendance)
     return new Promise((res, rej) => {
       this.afs.doc(`Attendance/${attendance.studentId}`).get().toPromise().then((attedance) => {
+       
+        console.log("23", attedance.data());
+       
         let semesterId = "Semester-".concat(attendance.semesterId);
         let objToSend = {};
         
         let semesterAttendance = new Array();
         semesterAttendance=attedance.data()[semesterId];
         console.log(1,semesterAttendance)
+        console.log("#90 semid",semesterId);
+        console.log("#90 attendance",attedance.data()[semesterId]);
+        
         attedance.data()[semesterId].forEach((element,index) => {
 
           if (element[attendance.courseId]){
@@ -93,6 +110,12 @@ export class DatabaseServiceService {
 
 
 
+  getClassById(id: string) {
+
+    this.classDoc = this.afs.doc<Class>(`Classes/${id}`);
+    this.class = this.classDoc.valueChanges();
+    return this.class;
+  }
 
 
   getTeacher(id: string) {
@@ -100,6 +123,15 @@ export class DatabaseServiceService {
     this.teacherDoc = this.afs.doc<Teacher>(`Teachers/${id}`);
     this.teacher = this.teacherDoc.valueChanges();
     return this.teacher;
+  }
+
+
+
+  getCourseById(id){
+    this.courseDoc = this.afs.doc<Course>(`Courses/${id}`);
+    this.course = this.courseDoc.valueChanges();
+    return this.course;
+
   }
 
 

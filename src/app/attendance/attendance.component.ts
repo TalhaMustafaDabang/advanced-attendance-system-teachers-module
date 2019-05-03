@@ -24,6 +24,7 @@ export class AttendanceComponent implements AfterViewInit, OnInit {
   attendance;
   loading;
   courseSemester;
+
   @ViewChild('player') player: ElementRef;
   @ViewChild('canvas') canvas: ElementRef;
   @ViewChild('captureBtn') captureBtn: ElementRef;
@@ -38,6 +39,24 @@ export class AttendanceComponent implements AfterViewInit, OnInit {
     public dbs: DatabaseServiceService) {
     this.clsId = actRoute.snapshot.paramMap.get('calssId');
     this.courseId = actRoute.snapshot.paramMap.get('courseId');
+    
+
+    this.dbs.getClassById(this.clsId).subscribe((classs)=>{
+
+      this.dbs.getCourseById(this.courseId).subscribe((course)=>{
+        course.offeredTo.forEach(element=>{
+          if(element.degree==classs.degree){
+            this.courseSemester=element.semester;
+          }
+        })
+      },(err)=>{
+        alert(err);
+      })
+
+    },(err)=>{
+      alert(err);
+    });
+
     this.dbs.getStudentsByClass(this.clsId)
       .subscribe((students) => {
         this.students = students;
@@ -50,20 +69,21 @@ export class AttendanceComponent implements AfterViewInit, OnInit {
             studentId: student.enrollmentId,
             personId: student.personId,
             courseId: this.courseId,
-            semesterId: student.status.toString(),
+            // semesterId: student.status.toString(),
+            semesterId: this.courseSemester
           };
           this.attendance.push(attendance);
         });
         // console.log(students);
         console.log(this.attendance);
       });
-    
+
 
 
   }
 
-  getPic(eid:any){
-return this.students[this.students.findIndex(e=>e.enrollmentId==eid)].imageId;
+  getPic(eid: any) {
+    return this.students[this.students.findIndex(e => e.enrollmentId == eid)].imageId;
   }
 
   async presentLoading(type: any) {
@@ -95,28 +115,31 @@ return this.students[this.students.findIndex(e=>e.enrollmentId==eid)].imageId;
   markAttendance(enrolId: any, i) {
     // console.log(`${enrolId} is present! ${i}`);
     this.attendance[i].status = true;
+    this.attendance[i].semesterId = this.courseSemester;
   }
 
   markAutoAttendance(personIds: any[]) {
-    
-    personIds.forEach((element) => {
-      let i=this.attendance.findIndex((x) => (x.personId == element));
-      console.log(this.attendance[i],"present");
-      this.attendance[i].status = true;
 
+    personIds.forEach((element) => {
+      let i = this.attendance.findIndex((x) => (x.personId == element));
+      console.log(this.attendance[i], "present");
+      this.attendance[i].status = true;
+      this.attendance[i].semesterId = this.courseSemester;
     });
-    this.manual=true;
+    this.manual = true;
     console.log(this.attendance);
 
   }
 
   submitAttendance() {
+    console.log("in submit attendance", this.attendance);
     this.presentLoading("present");
     this.attendance.forEach(element => {
-      this.dbs.markAttendaceInDb(element).then((e)=>{
+      console.log(element);
+      this.dbs.markAttendaceInDb(element).then((e) => {
         console.log(e);
         this.presentLoading('dismiss');
-      }).catch(e=>{console.log(e);this.presentLoading('dismiss')});
+      }).catch(e => { console.log(e); this.presentLoading('dismiss') });
     });
     console.log(this.attendance);
   }
@@ -151,11 +174,11 @@ return this.students[this.students.findIndex(e=>e.enrollmentId==eid)].imageId;
               // console.log("faceIds", faceIds);
               this.sas.identify(faceIds).toPromise().then((res) => {
                 // console.log(res);
-                console.log("faceidsffffff",res);
+                console.log("faceidsffffff", res);
                 let faceIdsResponse: any = res;
                 let personIds: any[] = new Array();
                 faceIdsResponse.forEach(element => {
-                  if(element.candidates.length>0&&element.candidates[0].confidence>=0.5){
+                  if (element.candidates.length > 0 && element.candidates[0].confidence >= 0.5) {
                     personIds.push(element.candidates[0].personId);
                   }
                   // console.log(element.candidates[0].personId);
@@ -190,7 +213,7 @@ return this.students[this.students.findIndex(e=>e.enrollmentId==eid)].imageId;
   initializeMedia() {
     if (!('mediaDevices' in navigator)) {
     }
-    navigator.mediaDevices.getUserMedia({ video: true })
+    navigator.mediaDevices.getUserMedia({  video: {facingMode: "environment"} })
       .then((stream) => {
         this.player.nativeElement.srcObject = stream;
       })

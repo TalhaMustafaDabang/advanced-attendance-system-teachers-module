@@ -15,7 +15,11 @@ export class StorageAzureServiceService {
   
   // Key 2: 55d9f6dcc8d9496fb7b98b3ee8d38a8d
   
-  key: string = "437b5edf675f4197933508001bd44932";
+  // key: string = "437b5edf675f4197933508001bd44932";old
+
+  key: string = "a0644eb3014b46038a56e736a47bf37a";
+
+
   detectApiEndPoint="https://westcentralus.api.cognitive.microsoft.com/face/v1.0/detect?returnFaceId=true";
   identifyApiEndPoint="https://westcentralus.api.cognitive.microsoft.com/face/v1.0/identify";
 
@@ -23,9 +27,9 @@ export class StorageAzureServiceService {
     const httpOptions = {
       headers: new HttpHeaders({
         'Access-Control-Allow-Methods': 'POST',
-        'Access-Control-Allow-Origin': 'http://localhost:4200',
+        'Access-Control-Allow-Origin': 'http://localhost:8100',
         'Ocp-Apim-Subscription-Key': this.key,
-
+        
       })
     };
   return this.http.post(this.detectApiEndPoint, {"url":imgUrl}, httpOptions);
@@ -36,9 +40,9 @@ export class StorageAzureServiceService {
     const httpOptions = {
       headers: new HttpHeaders({
         'Access-Control-Allow-Methods': 'POST',
-        'Access-Control-Allow-Origin': 'http://localhost:4200',
+        'Access-Control-Allow-Origin': 'http://localhost:8100',
         'Ocp-Apim-Subscription-Key': this.key,
-
+        'Content-Type': 'application/json',
       })
     };
     let requestBody={
